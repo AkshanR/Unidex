@@ -9,14 +9,14 @@
 </p>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge&logo=open-source-initiative&logoColor=white)](LICENSE)
+[![Deployed on Vercel](https://img.shields.io/badge/Live%20Demo-unidexapp.vercel.app-000000.svg?style=for-the-badge&logo=vercel&logoColor=white)](https://unidexapp.vercel.app)
 [![Zero Dependencies](https://img.shields.io/badge/Dependencies-ZERO-success.svg?style=for-the-badge&logo=javascript&logoColor=white)](app.js)
 [![Platform: Web](https://img.shields.io/badge/Platform-Web%20%7C%20Mobile-8A2BE2.svg?style=for-the-badge&logo=googlechrome&logoColor=white)](#-quick-start)
-[![Architecture: Local--First](https://img.shields.io/badge/Architecture-Local--First-orange.svg?style=for-the-badge&logo=fastapi&logoColor=white)](#-architecture--privacy)
 [![AI Skill: Ready](https://img.shields.io/badge/AI%20Skill-SKILL.md-FF6F61.svg?style=for-the-badge&logo=openai&logoColor=white)](SKILL.md)
 
 <br/>
 
-[**🌐 Live Demo**](https://akshanr.github.io/Unidex/) · [**✨ Features**](#-key-features) · [**🤖 AI Extraction Skill**](#-the-ai-superpower-skillmd) · [**🚀 Quick Start**](#-quick-start) · [**📋 JSON Schema**](#-json-schema--extensibility)
+[**🌐 Live Demo**](https://unidexapp.vercel.app) · [**✨ Features**](#-key-features) · [**🤖 AI Extraction Skill**](#-the-ai-superpower-skillmd) · [**🚀 Quick Start**](#-quick-start) · [**📋 JSON Schema**](#-json-schema--extensibility)
 
 <br/>
 
@@ -137,15 +137,24 @@ Visit `http://localhost:8000` in your browser.
 
 ---
 
-## 🌐 Deploy Your Own Live Version (Free)
+## 🌐 Live Deployment & Hosting
 
-Host your personal copy of Unidex on **GitHub Pages** in under 60 seconds:
+The official live version is deployed and running on **Vercel**:
+👉 **[https://unidexapp.vercel.app](https://unidexapp.vercel.app)**
 
-1. Fork or push this repository to your GitHub account.
-2. Go to **Settings** &rarr; **Pages**.
-3. Under **Build and deployment** &rarr; **Source**, choose **Deploy from a branch**.
-4. Set branch to **`main`** and folder to **`/(root)`**, then click **Save**.
-5. Your tracker will be live at `https://<your-username>.github.io/Unidex/` accessible from any smartphone, tablet, or PC!
+### Deploy Your Own Copy:
+
+#### Option A: Deploy to Vercel (1-Click)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FAkshanR%2FUnidex)
+
+1. Click the **Deploy** button above or import your repository fork in the [Vercel Dashboard](https://vercel.com).
+2. Leave all settings at default — Vercel detects static web assets automatically.
+3. Every push to `main` auto-deploys in seconds.
+
+#### Option B: GitHub Pages
+1. Go to your repository **Settings** &rarr; **Pages**.
+2. Under **Build and deployment** &rarr; **Source**, choose **Deploy from a branch**.
+3. Set branch to **`main`** and folder to **`/(root)`**, then click **Save**.
 
 ---
 
