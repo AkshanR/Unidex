@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unidex - Fast, Customizable College & Course Comparison Tracker</title>
+  <meta name="description" content="Fast, customizable college & course comparison tracker. Add any university, compare fees & specializations, filter options, and export structured notes to Markdown.">
+  <script>
+    (function() {
+      const saved = localStorage.getItem("unidex_theme") || localStorage.getItem("gradtrack_theme");
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (saved === 'dark' || (!saved && prefersDark)) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page-wrapper">
+    
+    <!-- Clean Header -->
+    <header class="site-header">
+      <div class="brand-section">
+        <h1>
+          <span>⚡</span> Unidex
+        </h1>
+        <p>Fast, customizable college &amp; course comparison tracker</p>
+      </div>
+
+      <div class="header-tools">
+        <button class="btn btn-subtle" id="theme-toggle" title="Toggle Theme (Light / Dark)">
+          <span id="theme-icon">🌙</span>
+          <span id="theme-label">Dark</span>
+        </button>
+        <button class="btn btn-subtle" id="btn-import" title="Import university JSON (Generated via AI Skill)">
+          <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 4.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 5.707V14.5a.5.5 0 0 1-1 0V5.707L5.354 7.854a.5.5 0 1 1-.708-.708z"/></svg>
+          Import JSON
+        </button>
+        <button class="btn btn-subtle" id="btn-export" title="Export as clean Markdown note">
+          <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708z"/></svg>
+          Export .md
+        </button>
+        <button class="btn btn-subtle" id="btn-reset" title="Reset default entries">
+          Reset
+        </button>
+        <button class="btn btn-primary" id="btn-add-program">
+          <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/></svg>
+          Add Program
+        </button>
+      </div>
+    </header>
+
+    <!-- Toolbar: Search, Filters & View Toggle -->
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="search-box">
+          <svg width="15" height="15" fill="currentColor" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/></svg>
+          <input type="text" id="search-input" placeholder="Search college, campus, AI, Cyber, Paytm..." aria-label="Search">
+        </div>
+
+        <div class="filter-group" id="filter-group">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="On-Campus">On-Campus</button>
+          <button class="filter-btn" data-filter="Online">Online</button>
+          <button class="filter-btn" data-filter="Specializations" id="btn-filter-specs">Specializations</button>
+        </div>
+
+        <div class="select-group">
+          <select id="univ-filter" class="filter-select" aria-label="Filter by University">
+            <option value="all">All Universities</option>
+            <option value="Christ">Christ University</option>
+            <option value="Amity">Amity University</option>
+          </select>
+
+          <select id="fee-sort" class="filter-select" aria-label="Sort by Fees">
+            <option value="default">Sort: Default</option>
+            <option value="low-to-high">Fees: Low to High (₹)</option>
+            <option value="high-to-low">Fees: High to Low (₹)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="view-group">
+        <button class="view-btn active" data-view="cards" id="view-cards-btn" title="Detailed Program Cards">
+          <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M2.5 1A1.5 1.5 0 0 0 1 2.5v11A1.5 1.5 0 0 0 2.5 15h6a.5.5 0 0 0 0-1h-6a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 .5.5v6a.5.5 0 0 0 1 0v-6A1.5 1.5 0 0 0 13.5 1z"/></svg>
+          Notes View
+        </button>
+        <button class="view-btn" data-view="compare" id="view-compare-btn" title="Side-by-Side Comparison Matrix">
+          <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm15 2h-4v3h4zm0 4h-4v3h4zm0 4h-4v3h3a1 1 0 0 0 1-1zm-5 3v-3H6v3zm-5 0v-3H1v2a1 1 0 0 0 1 1zm-4-4h4V8H1zm0-4h4V4H1zm5-3v3h4V1H6zm4 0v3h4V2a1 1 0 0 0-1-1z"/></svg>
+          Compare Table
+        </button>
+        <button class="view-btn" data-view="specs" id="view-specs-btn" title="Master Specializations & Electives List">
+          <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5zm8 0A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5zm-8 8A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5zm8 0A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5z"/></svg>
+          Specializations
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Container -->
+    <main>
+      <!-- 1. Notes View -->
+      <section class="programs-list" id="programs-list">
+        <!-- Generated by app.js -->
+      </section>
+
+      <!-- 2. Side-by-Side Comparison View (Hidden by default) -->
+      <section class="matrix-container" id="matrix-section" style="display: none;">
+        <h2 style="font-size:1.15rem; font-weight:700; margin-bottom:14px; color:var(--text-main);">Side-by-Side Program Comparison</h2>
+        <div id="matrix-wrapper">
+          <!-- Generated by app.js -->
+        </div>
+      </section>
+
+      <!-- 3. Master Specializations View (Hidden by default) -->
+      <section class="matrix-container" id="specs-section" style="display: none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+          <h2 style="font-size:1.15rem; font-weight:700; color:var(--text-main);">Master Specializations & Tracks Directory</h2>
+          <span id="specs-count-badge" class="tag tag-campus">0 specializations</span>
+        </div>
+        <div id="specs-wrapper">
+          <!-- Generated by app.js -->
+        </div>
+      </section>
+    </main>
+
+  </div>
+
+  <!-- Add Program Modal -->
+  <div class="modal-backdrop" id="add-modal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Add Program Note</h3>
+        <button class="close-btn" id="btn-close-modal">&times;</button>
+      </div>
+      <form id="add-program-form">
+        <div class="field-grid">
+          <div class="field-group">
+            <label for="univ">University Name</label>
+            <input type="text" id="univ" name="univ" required placeholder="e.g. Christ University">
+          </div>
+          <div class="field-group">
+            <label for="campus">Campus / Division</label>
+            <input type="text" id="campus" name="campus" required placeholder="e.g. Delhi NCR or Online">
+          </div>
+        </div>
+
+        <div class="field-grid">
+          <div class="field-group">
+            <label for="programName">Program Name</label>
+            <input type="text" id="programName" name="programName" required value="MCA (Master of Computer Applications)">
+          </div>
+          <div class="field-group">
+            <label for="mode">Mode</label>
+            <select id="mode" name="mode">
+              <option value="On-Campus">On-Campus</option>
+              <option value="Online">Online</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-grid">
+          <div class="field-group">
+            <label for="totalFee">Total Tuition Fee (INR)</label>
+            <input type="text" id="totalFee" name="totalFee" required placeholder="e.g. ₹2,30,000">
+          </div>
+          <div class="field-group">
+            <label for="duration">Duration</label>
+            <input type="text" id="duration" name="duration" value="2 Years">
+          </div>
+        </div>
+
+        <div class="field-grid">
+          <div class="field-group">
+            <label for="year1">Year 1 Fee</label>
+            <input type="text" id="year1" name="year1" placeholder="e.g. ₹1,09,250">
+          </div>
+          <div class="field-group">
+            <label for="year2">Year 2 Fee</label>
+            <input type="text" id="year2" name="year2" placeholder="e.g. ₹1,20,750">
+          </div>
+        </div>
+
+        <div class="field-grid">
+          <div class="field-group">
+            <label for="openFrom">Application Open</label>
+            <input type="text" id="openFrom" name="openFrom" placeholder="e.g. 15-Oct-2026">
+          </div>
+          <div class="field-group">
+            <label for="deadline">Application Deadline</label>
+            <input type="text" id="deadline" name="deadline" required placeholder="e.g. 25-Nov-2026">
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="url">Program Website URL</label>
+          <input type="url" id="url" name="url" placeholder="https://...">
+        </div>
+
+        <div class="field-group">
+          <label for="eligibility">Eligibility Notes (1 per line)</label>
+          <textarea id="eligibility" name="eligibility" rows="3" placeholder="Undergraduate degree with 50%+ aggregate&#10;Mathematics/CS at 10+2 or degree level"></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-subtle" id="btn-cancel-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Note</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Import University JSON Modal -->
+  <div class="modal-backdrop" id="import-modal">
+    <div class="modal-dialog" style="max-width: 620px;">
+      <div class="modal-header">
+        <div>
+          <h3>Import University via AI Skill</h3>
+          <p style="font-size:0.82rem; color:var(--text-secondary); margin-top:2px;">
+            Paste JSON generated by your AI (using the Unidex Skill) or upload a .json file
+          </p>
+        </div>
+        <button class="close-btn" id="btn-close-import-modal">&times;</button>
+      </div>
+
+      <div style="padding: 16px 20px;">
+        <!-- AI Skill copy banner -->
+        <div class="ai-skill-banner">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+            <div style="font-size:0.86rem; color:var(--text-main); font-weight:700;">
+              🤖 Generate with Any AI (ChatGPT, Claude, Gemini, Antigravity)
+            </div>
+            <span class="spec-badge">Unidex Skill</span>
+          </div>
+          <p style="font-size:0.80rem; color:var(--text-secondary); margin-bottom:10px; line-height:1.45;">
+            Give the AI our Unidex Extractor skill prompt along with any university name or link. It will research the curriculum, fees, and specializations, and return the ready JSON.
+          </p>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn btn-primary btn-sm" id="btn-copy-skill-prompt" type="button">
+              📋 Copy AI Skill Prompt
+            </button>
+            <a href="SKILL.md" target="_blank" class="btn btn-subtle btn-sm" style="text-decoration:none;">
+              View SKILL.md &rarr;
+            </a>
+          </div>
+        </div>
+
+        <div class="field-group" style="margin-top:14px;">
+          <label for="import-json-input">Paste Unidex JSON Data</label>
+          <textarea id="import-json-input" rows="8" placeholder='{
+  "university": "Example University",
+  "program": "Master of Computer Applications",
+  "campus": "Main Campus",
+  "mode": "On-Campus",
+  "totalFeeDisplay": "₹3,50,000",
+  ...
+}' style="font-family: monospace; font-size: 0.82rem; line-height: 1.4;"></textarea>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; flex-wrap:wrap; gap:8px;">
+          <label class="btn btn-subtle btn-sm" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+            📁 Upload .json File
+            <input type="file" id="import-file-input" accept=".json" style="display:none;">
+          </label>
+          <span id="import-file-name" style="font-size:0.80rem; color:var(--text-muted);"></span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-subtle" id="btn-cancel-import-modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="btn-submit-import">Import to Unidex</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
